@@ -35,15 +35,13 @@ class User extends Authenticatable
         ];
     }
 
-    protected static function booted()
+   protected static function booted()
     {
         static::creating(function ($user) {
-            // Default role is anggota if not specified
             if (empty($user->role)) {
                 $user->role = 'anggota';
             }
 
-            // Only generate nomor_anggota for anggota
             if ($user->role === 'anggota' && empty($user->nomor_anggota)) {
                 $lastUser = self::where('role', 'anggota')
                                 ->whereNotNull('nomor_anggota')
@@ -51,7 +49,7 @@ class User extends Authenticatable
                                 ->first();
 
                 $lastNumber = 0;
-                if ($lastUser) {
+                if ($lastUser && !empty($lastUser->nomor_anggota)) { // ← tambah pengecekan
                     $lastNumber = intval(substr($lastUser->nomor_anggota, 3));
                 }
 
